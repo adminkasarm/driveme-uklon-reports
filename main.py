@@ -2,7 +2,7 @@
 import os
 from playwright.sync_api import sync_playwright
 
-UKLON_URL = "https://fleets.uklon.com.ua/workspace/reports#drivers-reports"
+UKLON_URL = "https://fleets.uklon.com.ua/auth/login"
 
 def main():
     login = os.environ.get("UKLON_LOGIN")
@@ -16,12 +16,18 @@ def main():
         page = browser.new_page()
 
         page.goto(UKLON_URL, wait_until="domcontentloaded")
-        page.wait_for_timeout(5000)
+        page.wait_for_timeout(3000)
 
-        print("Заголовок страницы:", page.title())
-        print("Текущий адрес:", page.url)
-        print("Текст страницы:")
-        print(page.locator("body").inner_text()[:5000])
+        print("Поля до Continue:")
+        for field in page.locator("input").all():
+            print({
+                "type": field.get_attribute("type"),
+                "placeholder": field.get_attribute("placeholder"),
+                "name": field.get_attribute("name")
+            })
+
+        print("Кнопки:")
+        print(page.locator("button").all_text_contents())
 
         browser.close()
 
