@@ -1,0 +1,29 @@
+
+name: Uklon Reports
+
+on:
+  workflow_dispatch:
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+
+      - name: Run Uklon script
+        env:
+          UKLON_LOGIN: ${{ secrets.UKLON_LOGIN }}
+          UKLON_PASSWORD: ${{ secrets.UKLON_PASSWORD }}
+        run: python main.py
