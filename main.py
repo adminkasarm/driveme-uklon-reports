@@ -5,20 +5,21 @@ from playwright.sync_api import sync_playwright
 UKLON_URL = "https://fleets.uklon.com.ua/auth/login"
 
 def main():
-    login = os.environ.get("UKLON_LOGIN")
-    password = os.environ.get("UKLON_PASSWORD")
-
-    if not login or not password:
-        raise RuntimeError("Не заданы UKLON_LOGIN и UKLON_PASSWORD")
+    login = os.environ["UKLON_LOGIN"]
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
 
         page.goto(UKLON_URL, wait_until="domcontentloaded")
+        page.locator('input[name="phone"]').fill(login)
+        page.get_by_role("button", name="Continue").click()
+
         page.wait_for_timeout(3000)
 
-        print("Поля до Continue:")
+        print("Адрес после Continue:", page.url)
+        print("Поля после Continue:")
+
         for field in page.locator("input").all():
             print({
                 "type": field.get_attribute("type"),
@@ -26,8 +27,8 @@ def main():
                 "name": field.get_attribute("name")
             })
 
-        print("Кнопки:")
-        print(page.locator("button").all_text_contents())
+        print("Текст страницы:")
+        print(page.locator("body").inner_text()[:3000])
 
         browser.close()
 
